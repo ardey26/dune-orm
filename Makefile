@@ -11,8 +11,7 @@ clean:
 	rm -rf dist src/*.egg-info
 
 .PHONY: build-publish
-build-publish: 
-	clean build publish
+build-publish: clean build publish
 
 .PHONY: spin-env
 spin-env:
