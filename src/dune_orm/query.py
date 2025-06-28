@@ -13,7 +13,7 @@ class DuneSQLQueryBuilder:
         if not self.exclude_filters:
             return ""
         clauses = [f"{k} = '{v}'" for k, v in self.exclude_filters.items()]
-        return "WHERE NOT " + " AND ".join(clauses)
+        return "WHERE NOT (" + " AND ".join(clauses) + ")"
 
     def build(self) -> str:
         """Compose the full SQL query string."""
