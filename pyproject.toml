@@ -1,6 +1,6 @@
 [project]
 name = "dune_orm"
-version = "0.1.8"
+version = "0.1.9"
 authors = [
   { name="Andre de Jesus", email="dejesusandre0226@gmail.com" },
 ]
