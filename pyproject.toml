@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dune-orm"
-version = "0.1.2"
+version = "0.1.3"
 description = "A Django-style ORM for querying Dune Analytics via Python."
 readme = "./README.md"
 authors = [
@@ -19,3 +19,6 @@ dependencies = [
 [project.urls]
 Homepage = "https://github.com/ardey26/dune-orm"
 Repository = "https://github.com/ardey26/dune-orm"
+
+[tool.setuptools.packages.find]
+exclude = ["LICENSE", "tests*", "Makefile"]
