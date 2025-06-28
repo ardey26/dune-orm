@@ -5,6 +5,16 @@ from typing import List
 from enum import Enum
 import logging
 logger = logging.getLogger(__name__)
+from functools import wraps
+
+def requires_api_key(method):
+    """Decorator to ensure an API key is set before calling the method."""
+    @wraps(method)
+    def wrapper(self, *args, **kwargs):
+        if not getattr(self, "API_KEY", None):
+            raise ValueError("API_KEY is required for this operation.")
+        return method(self, *args, **kwargs)
+    return wrapper
 
 
 class ExecutionID(str):
@@ -59,6 +69,7 @@ class DuneQueryExecutor:
     status = None
     query_id = None
 
+    @requires_api_key
     def get_query(self) -> str:
         """Return the raw Dune SQL command."""
         if not self.query:
@@ -66,6 +77,7 @@ class DuneQueryExecutor:
 
         return RawDuneQuery(self.query)
 
+    @requires_api_key
     def get_query_url(self) -> str:
         """Return the URL for the Dune query."""
         if not self.query_id:
@@ -73,6 +85,7 @@ class DuneQueryExecutor:
         base_url = "https://dune.com/queries/"
         return f"{base_url}{self.query_id}"
 
+    @requires_api_key
     def create_query(self) -> str:
         """Submit SQL to Dune and return the query ID."""
         url = "https://api.dune.com/api/v1/query"
@@ -111,6 +124,7 @@ class DuneQueryExecutor:
 
         return query_id
 
+    @requires_api_key
     def execute_query(self, query_id: QueryID) -> ExecutionID:
         """Trigger execution of a previously created query."""
         exec_url = f"https://api.dune.com/api/v1/query/{query_id}/execute"
@@ -120,6 +134,7 @@ class DuneQueryExecutor:
         data = response.json()
         return ExecutionID(data.get("execution_id", None))
 
+    @requires_api_key
     def get_execution_status(self, execution_id: ExecutionID) -> bool:
         """Check if the query has completed (rows available)."""
         url = f"https://api.dune.com/api/v1/execution/{execution_id}/status"
@@ -144,6 +159,7 @@ class DuneQueryExecutor:
         elif status in (ExecutionStatus.QUERY_STATE_FAILED, ExecutionStatus.QUERY_STATE_CANCELED, ExecutionStatus.QUERY_STATE_EXPIRED):
             raise Exception(f"Query execution failed with status: {status}")
 
+    @requires_api_key
     def get_results(self, query_id: QueryID) -> List[QueryResult]:
         """
             Retrieve the query results (rows).
@@ -164,6 +180,7 @@ class DuneQueryExecutor:
         data = response.json()
         return data.get("result", {}).get("rows", [])
 
+    @requires_api_key
     def execute(self) -> List[QueryResult]:
         """
             Submit the built query to Dune, poll for results, and return rows.
@@ -174,9 +191,6 @@ class DuneQueryExecutor:
             If the query is successful, it returns the rows as a list of dictionaries.
             If the query fails or times out, it raises an exception with an appropriate message.
         """
-        if not self.API_KEY:
-            raise ValueError("API_KEY is required for executing queries.")
-
         query_id = self.create_query()
         execution_id = self.execute_query(query_id)
 
