@@ -40,7 +40,16 @@ class DuneQueryBuilder:
     def order_by(self, field, ascending=True):
         """Set ordering and return a new builder."""
         self.sort_by = field
-        self.sort_order = 'asc' if ascending else 'desc'
+
+        if self.sort_by[0] == '-':
+            if ascending:
+                raise ValueError("Cannot sort ascending by a descending field")
+            
+            self.sort_by = self.sort_by[1:]
+            self.sort_order = 'desc'
+            
+        else:
+            self.sort_order = 'asc' if ascending else 'desc'
 
     @chainable
     def limit(self, n):
