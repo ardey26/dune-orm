@@ -29,7 +29,7 @@ query.all()
 
 - Familiar `.filter()`, `.exclude()`, `.order_by()` chaining
 - Lazy evaluation with implicit SQL generation or execution
-- `convert_only` flag to toggle SQL vs execution
+- `is_read_only` flag to toggle SQL vs execution
 - Clean Django-style API
 
 ## 📁 Project Structure
