@@ -57,7 +57,7 @@ class DuneQueryExecutor:
     DEFAULT_POLL_INTERVAL = 5  # seconds
 
     status = None
-    query_url = "https://dune.com/queries/"
+    query_id = None
 
     def get_query(self) -> str:
         """Return the raw Dune SQL command."""
@@ -68,13 +68,15 @@ class DuneQueryExecutor:
 
     def get_query_url(self) -> str:
         """Return the URL for the Dune query."""
-        if not self.query_url:
-            raise ValueError("Query URL is not set.")
-        return self.query_url
+        if not self.query_id:
+            raise ValueError("Query ID is not set.")
+        base_url = "https://dune.com/queries/"
+        return f"{base_url}{self.query_id}"
 
     def create_query(self) -> str:
         """Submit SQL to Dune and return the query ID."""
         url = "https://api.dune.com/api/v1/query"
+
         if not self.query_name:
             self.query_name = f"query_{self.table_name}_{datetime.now()}"
         if not self.query_description:
@@ -90,7 +92,14 @@ class DuneQueryExecutor:
             "X-DUNE-API-KEY": self.API_KEY,
             "Content-Type": "application/json"
         }
-        response = requests.post(url, headers=headers, json=payload)
+
+        if not self.query_id:
+            response = requests.post(url, headers=headers, json=payload)
+        else:
+            # If query_id is set, we update the existing query
+            update_url = f"{url}/{self.query_id}"
+            response = requests.patch(update_url, headers=headers, json=payload)
+            
         response.raise_for_status()
         data = response.json()
         query_id = QueryID(data["query_id"])
@@ -98,7 +107,7 @@ class DuneQueryExecutor:
         if not query_id:
             raise Exception("Failed to create query. Response: " + str(data))
         
-        self.query_url = f"{self.query_url}{query_id}"
+        self.query_id = query_id
 
         return query_id
 
