@@ -2,8 +2,7 @@ import requests
 from datetime import datetime
 
 class DuneQuery:
-    def __init__(self, 
-                 name_space, 
+    def __init__(self,
                  table_name, 
                  is_read_only=False, 
                  query = None, 
@@ -20,8 +19,7 @@ class DuneQuery:
                  API_KEY = None
                  ):
 
-
-        self.name_space = name_space
+        
         self.table_name = table_name
         self.is_read_only = is_read_only
 
@@ -32,13 +30,11 @@ class DuneQuery:
         self.limit = limit
 
         self.sort_by = sort_by
-        self.sort_order = sort_order
-
-        self.parsed_table_name = f"dune.{name_space}.{table_name}"
+        self.sort_order = sort_order        
 
         self.query_name = query_name
         self.query_description = query_description
-        self.private = is_private
+        self.is_private = is_private
 
         # API_KEY is optional, if not provided, the table will be read-only
         # and no API calls will be made.
@@ -50,6 +46,9 @@ class DuneQuery:
 
     def __str__(self):
         return self.query
+    
+    def __repr__(self):
+        return str(self)
 
     def execute(self):
         if not self.API_KEY:
@@ -58,16 +57,16 @@ class DuneQuery:
         url = "https://api.dune.com/api/v1/query"
 
         if not self.query_name:
-            self.query_name = f"query_{self.name_space}_{self.table_name}_{datetime.now()}"
+            self.query_name = f"query_{self.table_name}_{datetime.now()}"
 
         if not self.query_description:
-            self.query_description = f"Query for {self.name_space}.{self.table_name} at {datetime.now()}"
+            self.query_description = f"Query for {self.table_name} at {datetime.now()}"
 
         payload = {
             "name": self.query_name,
             "description": self.query_description,
             "query_sql": self.query,
-            "is_private": self.private
+            "is_private": self.is_private
         }
 
         headers = {
@@ -112,10 +111,10 @@ class DuneQuery:
 
     def process_query(self):
         if not self.fields:
-            self.query = f"select * from {self.parsed_table_name}"
+            self.query = f"select * from {self.table_name}"
         else:
             parsed_fields = ",".join(self.fields)
-            self.query = f"select {parsed_fields} from {self.parsed_table_name}"
+            self.query = f"select {parsed_fields} from {self.table_name}"
 
         if not self.query:
             self.all()
@@ -135,8 +134,7 @@ class DuneQuery:
             self.query += f" limit {self.limit}"
 
         if self.is_read_only:
-            return DuneQuery(
-                        name_space=self.name_space,
+            return DuneQuery(                        
                         table_name=self.table_name,
                         is_read_only=self.is_read_only,
                         query=self.query,

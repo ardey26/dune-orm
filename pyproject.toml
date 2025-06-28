@@ -1,24 +1,23 @@
-[build-system]
-requires = ["setuptools>=65", "wheel"]
-build-backend = "setuptools.build_meta"
-
 [project]
-name = "dune-orm"
-version = "0.1.3"
-description = "A Django-style ORM for querying Dune Analytics via Python."
-readme = "./README.md"
+name = "dune_orm"
+version = "0.1.8"
 authors = [
-  { name="Andre de Jesus", email="dejesusandre0226@gmail.com" }
+  { name="Andre de Jesus", email="dejesusandre0226@gmail.com" },
 ]
-license = { text = "MIT" }
-requires-python = ">=3.10"
+
 dependencies = [
-  "requests>=2.0"
+  "requests==2.32.4"
 ]
+
+description = "A Django-style ORM for querying Dune Analytics with fluent, chainable Python syntax."
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
 
 [project.urls]
 Homepage = "https://github.com/ardey26/dune-orm"
-Repository = "https://github.com/ardey26/dune-orm"
-
-[tool.setuptools.packages.find]
-exclude = ["LICENSE", "tests*", "Makefile"]
