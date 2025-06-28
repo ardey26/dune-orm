@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dune-orm"
-version = "0.1.1"
+version = "0.1.2"
 description = "A Django-style ORM for querying Dune Analytics via Python."
 readme = "./README.md"
 authors = [
