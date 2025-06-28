@@ -1,5 +1,6 @@
 import requests
 from datetime import datetime
+import time
 
 class DuneQuery:
     def __init__(self,
@@ -12,7 +13,7 @@ class DuneQuery:
                  limit = 0,
                  sort_by = None,
                  sort_order = "asc",
-                 is_private = False,
+                 is_private = True,
                  query_name = None,
                  query_description = None,
 
@@ -27,7 +28,7 @@ class DuneQuery:
         self.fields = fields
         self.filters = filters
         self.exclude_filters = exclude_filters
-        self.limit = limit
+        self._limit = limit
 
         self.sort_by = sort_by
         self.sort_order = sort_order        
@@ -54,6 +55,7 @@ class DuneQuery:
         if not self.API_KEY:
             raise ValueError("API_KEY is required for executing queries.")
         
+        # Create the query
         url = "https://api.dune.com/api/v1/query"
 
         if not self.query_name:
@@ -74,33 +76,32 @@ class DuneQuery:
             "Content-Type": "application/json"
         }
 
-        response = requests.get(url, headers=headers, json=payload)
-
-        if not response.status == 200:
-            return
+        response = requests.post(url, headers=headers, json=payload)
+        
         
         data = response.json()
         query_id = data["query_id"]
 
+        # Execute the query
+        url = f"https://api.dune.com/api/v1/query/{query_id}/execute"
+        headers = {"X-DUNE-API-KEY": self.API_KEY}
+        requests.post(url, headers=headers)
+
+        # Poll for results every 5 seconds until the query is complete
         query_url = f"https://api.dune.com/api/v1/query/{query_id}/results"
 
-        response = requests.get(query_url, headers=headers)
-
-        if not response.status == 200:
-            return
-        
-        data = response.json()
-        results = data["result"]
-        
-        if not results:
-            return []
-        
-        rows = results["rows"]
-        if not rows:
-            return []
-        
-        return rows
-
+        MAX_ATTEMPTS = 12
+        while MAX_ATTEMPTS > 0:
+            print("Polling for results...")
+            response = requests.get(query_url, headers=headers)
+            data = response.json()
+            if "result" in data and data["result"] and "rows" in data["result"]:
+                rows = data["result"]["rows"]
+                return rows if rows else []
+            time.sleep(5)
+            MAX_ATTEMPTS -= 1
+        raise Exception("Query execution timed out or failed to return results.")
+    
     def build_filters(self):
         built_filters = " and ".join(f"{k} = '{v}'" for k, v in self.filters.items())
         return built_filters
@@ -130,8 +131,8 @@ class DuneQuery:
         if self.sort_by:
             self.query += f" order by {self.sort_by} {self.sort_order}"
 
-        if self.limit:
-            self.query += f" limit {self.limit}"
+        if self._limit:
+            self.query += f" limit {self._limit}"
 
         if self.is_read_only:
             return DuneQuery(                        
@@ -141,7 +142,7 @@ class DuneQuery:
                         fields=self.fields,
                         filters=self.filters,
                         exclude_filters=self.exclude_filters,
-                        limit=self.limit,
+                        limit=self._limit,
                         sort_by=self.sort_by,
                         sort_order=self.sort_order,
                         is_private=self.is_private,
@@ -149,7 +150,7 @@ class DuneQuery:
                         query_description=self.query_description
                     )
 
-        query_execution_status = self.execute(self.query)
+        query_execution_status = self.execute()
 
         return query_execution_status
 
@@ -172,11 +173,15 @@ class DuneQuery:
 
     def get(self, **kwargs):
         self.filters = kwargs
-        self.limit = 1
+        self._limit = 1
         return self.process_query()
 
     def order_by(self, order_by_field, ascending=True):
         self.sort_by = order_by_field
         self.sort_order = 'asc' if ascending else 'desc'
 
+        return self.process_query()
+    
+    def limit(self, limit):
+        self._limit = limit
         return self.process_query()
