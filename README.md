@@ -48,4 +48,4 @@ pytest
 
 ## 🪪 License
 
-MIT License. See [LICENSE](./LICENSE).
+MIT License. See [LICENSE](https://github.com/ardey26/dune-orm/blob/main/LICENSE).
