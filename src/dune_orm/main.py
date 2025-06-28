@@ -2,25 +2,25 @@ import requests
 from datetime import datetime
 import time
 
+
 class DuneQuery:
     def __init__(self,
-                 table_name, 
-                 is_read_only=False, 
-                 query = None, 
-                 fields = [], 
-                 filters = {}, 
-                 exclude_filters = {},
-                 limit = 0,
-                 sort_by = None,
-                 sort_order = "asc",
-                 is_private = True,
-                 query_name = None,
-                 query_description = None,
+                 table_name,
+                 is_read_only=False,
+                 query=None,
+                 fields=[],
+                 filters={},
+                 exclude_filters={},
+                 limit=0,
+                 sort_by=None,
+                 sort_order="asc",
+                 is_private=True,
+                 query_name=None,
+                 query_description=None,
 
-                 API_KEY = None
+                 API_KEY=None
                  ):
 
-        
         self.table_name = table_name
         self.is_read_only = is_read_only
 
@@ -31,7 +31,7 @@ class DuneQuery:
         self._limit = limit
 
         self.sort_by = sort_by
-        self.sort_order = sort_order        
+        self.sort_order = sort_order
 
         self.query_name = query_name
         self.query_description = query_description
@@ -47,14 +47,14 @@ class DuneQuery:
 
     def __str__(self):
         return self.query
-    
+
     def __repr__(self):
         return str(self)
 
     def execute(self):
         if not self.API_KEY:
             raise ValueError("API_KEY is required for executing queries.")
-        
+
         # Create the query
         url = "https://api.dune.com/api/v1/query"
 
@@ -77,8 +77,7 @@ class DuneQuery:
         }
 
         response = requests.post(url, headers=headers, json=payload)
-        
-        
+
         data = response.json()
         query_id = data["query_id"]
 
@@ -100,14 +99,17 @@ class DuneQuery:
                 return rows if rows else []
             time.sleep(5)
             MAX_ATTEMPTS -= 1
-        raise Exception("Query execution timed out or failed to return results.")
-    
+        raise Exception(
+            "Query execution timed out or failed to return results.")
+
     def build_filters(self):
-        built_filters = " and ".join(f"{k} = '{v}'" for k, v in self.filters.items())
+        built_filters = " and ".join(
+            f"{k} = '{v}'" for k, v in self.filters.items())
         return built_filters
 
-    def build_exclude(self): 
-        built_exclude = " and ".join(f"{k} = '{v}'" for k, v in self.exclude_filters.items())
+    def build_exclude(self):
+        built_exclude = " and ".join(
+            f"{k} = '{v}'" for k, v in self.exclude_filters.items())
         return built_exclude
 
     def process_query(self):
@@ -135,20 +137,20 @@ class DuneQuery:
             self.query += f" limit {self._limit}"
 
         if self.is_read_only:
-            return DuneQuery(                        
-                        table_name=self.table_name,
-                        is_read_only=self.is_read_only,
-                        query=self.query,
-                        fields=self.fields,
-                        filters=self.filters,
-                        exclude_filters=self.exclude_filters,
-                        limit=self._limit,
-                        sort_by=self.sort_by,
-                        sort_order=self.sort_order,
-                        is_private=self.is_private,
-                        query_name=self.query_name,
-                        query_description=self.query_description
-                    )
+            return DuneQuery(
+                table_name=self.table_name,
+                is_read_only=self.is_read_only,
+                query=self.query,
+                fields=self.fields,
+                filters=self.filters,
+                exclude_filters=self.exclude_filters,
+                limit=self._limit,
+                sort_by=self.sort_by,
+                sort_order=self.sort_order,
+                is_private=self.is_private,
+                query_name=self.query_name,
+                query_description=self.query_description
+            )
 
         query_execution_status = self.execute()
 
@@ -158,7 +160,7 @@ class DuneQuery:
         self.filters = {}
         self.fields = []
         return self.process_query()
-     
+
     def values(self, *args):
         self.fields = args
         return self.process_query()
@@ -166,7 +168,7 @@ class DuneQuery:
     def filter(self, **kwargs):
         self.filters = kwargs
         return self.process_query()
-    
+
     def exclude(self, **kwargs):
         self.exclude_filters = kwargs
         return self.process_query()
@@ -181,7 +183,7 @@ class DuneQuery:
         self.sort_order = 'asc' if ascending else 'desc'
 
         return self.process_query()
-    
+
     def limit(self, limit):
         self._limit = limit
         return self.process_query()
