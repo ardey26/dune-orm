@@ -6,7 +6,8 @@ authors = [
 ]
 
 dependencies = [
-  "requests>=2.32,<3.0"
+  "requests>=2.0.0",
+  "pytest>=8.0.0",
 ]
 
 description = "A Django-style ORM for querying Dune Analytics with fluent, chainable Python syntax."
