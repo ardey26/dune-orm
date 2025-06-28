@@ -13,18 +13,16 @@ pip install dune-orm
 ## 🚀 Usage
 
 ```python
-from dune_orm import BaseModel
+from dune_orm import DuneQuery
 
-class Opportunities(BaseModel):
-    __tablename__ = "name_space.table_name"
+# Generates DuneSQL only
+query = DuneQuery(table_name="table")
+query.all()
 
-# Generate SQL only
-sql = Opportunities.objects(convert_only=True).filter(name="ETH").limit(5)
-print(sql)
+# Executes query and returns Dune query URL
+query = DuneQuery(table_name="table", API_KEY="<api_key_here>")
+query.all()
 
-# Execute query
-result_url = Opportunities.objects().filter(name="ETH").limit(5)
-print(result_url)
 ```
 
 ## 🧩 Features
