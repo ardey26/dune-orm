@@ -17,4 +17,4 @@ build-publish: clean build publish
 spin-env:
 	python3 -m venv .env
 	.env/bin/pip install --upgrade pip
-	source ./.env/bin/activate
+	source .env/bin/activate
