@@ -1,6 +1,6 @@
-from .builder import DuneQueryBuilder
-from .executor import DuneQueryExecutor
-from .query import DuneSQLQueryBuilder
+from dune_orm.builder import DuneQueryBuilder
+from dune_orm.executor import DuneQueryExecutor
+from dune_orm.query import DuneSQLQueryBuilder
 
 
 class DuneQuery(DuneQueryBuilder, DuneQueryExecutor, DuneSQLQueryBuilder):
