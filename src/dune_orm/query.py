@@ -1,10 +1,11 @@
 class DuneSQLQueryBuilder:
     """Builds and composes SQL for DuneQuery."""
 
-    def build_filters(self) -> str:
-        """Return the SQL WHERE clause for included filters, supporting lookups like col__gt."""
-        if not self.filters:
+    def _build_conditional_clause(self, filters: dict, negate: bool = False) -> str:
+        """Return a SQL WHERE clause or WHERE NOT clause based on filters."""
+        if not filters:
             return ""
+        # reuse lookup logic
         op_map = {
             'gt': '>',
             'lt': '<',
@@ -15,11 +16,10 @@ class DuneSQLQueryBuilder:
             'contains': 'LIKE'
         }
         clauses = []
-        for key, value in self.filters.items():
+        for key, value in filters.items():
             parts = key.split("__", 1)
             field = parts[0]
             if len(parts) == 1:
-                # equality
                 clauses.append(f"{field} = '{value}'")
             else:
                 lookup = parts[1]
@@ -31,14 +31,18 @@ class DuneSQLQueryBuilder:
                     clauses.append(f"{field} LIKE '%{value}%'")
                 else:
                     clauses.append(f"{field} {sql_op} '{value}'")
-        return "WHERE " + " AND ".join(clauses)
+        connector = " AND ".join(clauses)
+        if negate:
+            return f"WHERE NOT ({connector})"
+        return f"WHERE {connector}"
+
+    def build_filters(self) -> str:
+        """Return the SQL WHERE clause for included filters, supporting lookups like col__gt."""
+        return self._build_conditional_clause(self.filters, negate=False)
 
     def build_exclude(self) -> str:
         """Return the SQL WHERE NOT clause for excluded filters."""
-        if not self.exclude_filters:
-            return ""
-        clauses = [f"{k} = '{v}'" for k, v in self.exclude_filters.items()]
-        return "WHERE NOT (" + " AND ".join(clauses) + ")"
+        return self._build_conditional_clause(self.exclude_filters, negate=True)
 
     def build(self) -> str:
         """Compose the full SQL query string."""
