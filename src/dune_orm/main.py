@@ -1,6 +1,6 @@
-from builder import DuneQueryBuilder
-from executor import DuneQueryExecutor
-from query import DuneSQLQueryBuilder
+from .builder import DuneQueryBuilder
+from .executor import DuneQueryExecutor
+from .query import DuneSQLQueryBuilder
 
 
 class DuneQuery(DuneQueryBuilder, DuneQueryExecutor, DuneSQLQueryBuilder):
@@ -69,6 +69,7 @@ class DuneQuery(DuneQueryBuilder, DuneQueryExecutor, DuneSQLQueryBuilder):
             self.is_read_only = True
 
     def __str__(self):
+        self.query = self.build()
         return self.query
 
     def __repr__(self):
