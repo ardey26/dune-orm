@@ -44,11 +44,13 @@ class DuneSQLQueryBuilder:
         """Compose the full SQL query string."""
         fields = ", ".join(self.fields) if self.fields else "*"
         sql = f"SELECT {fields} FROM {self.table_name} "
-        # apply filters and exclude (mutually exclusive)
+
         if self.filters:
             sql += self.build_filters() + " "
-        elif self.exclude_filters:
+
+        if self.exclude_filters:
             sql += self.build_exclude() + " "
+
         # ordering
         if getattr(self, "sort_by", None):
             sql += f"ORDER BY {self.sort_by} {self.sort_order} "
