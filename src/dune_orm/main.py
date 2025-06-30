@@ -12,9 +12,6 @@ class DuneQuery(DuneQueryBuilder, DuneQueryExecutor, DuneSQLQueryBuilder):
 
         Attributes:
             table_name (str): The name of the Dune Analytics table to query.
-            is_read_only (bool): If True, the query is read-only and no API calls
-                will be made. If False, the query can be executed and results
-                will be fetched from the Dune API.
             query (str): The SQL query to execute.
             fields (list): A list of fields to select in the query.
             filters (dict): A dictionary of filters to apply to the query.
@@ -28,8 +25,7 @@ class DuneQuery(DuneQueryBuilder, DuneQueryExecutor, DuneSQLQueryBuilder):
             API_KEY (str): The API key for authenticating with the Dune API.
     """
     def __init__(self,
-                 table_name,
-                 is_read_only=False,
+                 table_name,                 
                  query=None,
                  fields=[],
                  filters={},
@@ -45,7 +41,6 @@ class DuneQuery(DuneQueryBuilder, DuneQueryExecutor, DuneSQLQueryBuilder):
                  ):
 
         self.table_name = table_name
-        self.is_read_only = is_read_only
 
         self.query = query
         self.fields = fields
@@ -65,8 +60,6 @@ class DuneQuery(DuneQueryBuilder, DuneQueryExecutor, DuneSQLQueryBuilder):
         # If provided, the table will be writable and API calls will be made.
         # Note: API_KEY is not used in this example, but can be used to authenticate with the Dune API.
         self.API_KEY = API_KEY
-        if self.API_KEY is None:
-            self.is_read_only = True
 
     def __str__(self):
         self.query = self.build()

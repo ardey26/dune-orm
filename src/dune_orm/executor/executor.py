@@ -181,7 +181,7 @@ class DuneQueryExecutor:
         return data.get("result", {}).get("rows", [])
 
     @requires_api_key
-    def execute_all(self) -> List[QueryResult]:
+    def execute(self) -> List[QueryResult]:
         """
             Submit the built query to Dune, poll for results, and return rows.
             This method will raise an exception if the query fails or times out.

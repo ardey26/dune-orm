@@ -62,24 +62,3 @@ class DuneSQLQueryBuilder:
         if getattr(self, "_limit", 0):
             sql += f"LIMIT {self._limit}"
         return sql.strip()
-
-    def process(self):
-        """Finalize or execute the SQL based on read-only flag."""
-        self.query = self.build()
-        if self.is_read_only:
-            return type(self)(
-                table_name=self.table_name,
-                is_read_only=self.is_read_only,
-                query=self.query,
-                fields=self.fields,
-                filters=self.filters,
-                exclude_filters=self.exclude_filters,
-                limit=self._limit,
-                sort_by=self.sort_by,
-                sort_order=self.sort_order,
-                is_private=self.is_private,
-                query_name=self.query_name,
-                query_description=self.query_description,
-                API_KEY=self.API_KEY,
-            )
-        return self.execute_all()
